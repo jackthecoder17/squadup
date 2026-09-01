@@ -1,10 +1,11 @@
-import { SSE_KEEPALIVE } from "@/lib/sse";
+import { formatSSE, SSE_KEEPALIVE } from "@/lib/sse";
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
 import { createRedisSubscriber, matchChannel } from "@/server/redis";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /** Per-match event stream: lobby chat, ready toggles, and state transitions. */
 export async function GET(_request: Request, { params }: RouteContext<"/api/match/[id]/stream">) {
@@ -17,6 +18,12 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/matc
     select: { id: true },
   });
   if (!player) return new Response("Forbidden", { status: 403 });
+
+  // Current state, so a reconnect (serverless streams are time-capped) re-syncs.
+  const match = await db.match.findUniqueOrThrow({
+    where: { id },
+    select: { state: true, players: { select: { userId: true, ready: true } } },
+  });
 
   const channel = matchChannel(id);
   const subscriber = createRedisSubscriber();
@@ -51,7 +58,10 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/matc
 
       _request.signal.addEventListener("abort", cleanup);
 
-      send(SSE_KEEPALIVE);
+      send(formatSSE({ kind: "state", state: match.state }));
+      for (const p of match.players) {
+        send(formatSSE({ kind: "ready", userId: p.userId, ready: p.ready }));
+      }
       await subscriber.subscribe(channel);
       subscriber.on("message", (_channel, payload) => {
         send(`data: ${payload}\n\n`);

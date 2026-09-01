@@ -6,6 +6,7 @@ import { CHANNEL, createRedisSubscriber } from "@/server/redis";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /**
  * Matchmaking event stream. Each client holds one connection; while it's open
