@@ -71,6 +71,12 @@ export function useQueueStream(userId: string, initial: QueueStreamInit) {
               matches: { ...prev.matches, [parsed.gameSlug]: parsed.matchId },
             };
           }
+          case "match-cancelled": {
+            if (!parsed.userIds.includes(userId)) return prev;
+            const matches = { ...prev.matches };
+            delete matches[parsed.gameSlug];
+            return { ...prev, matches };
+          }
           default:
             return prev;
         }
