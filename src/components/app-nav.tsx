@@ -6,8 +6,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 
 const LINKS = [
-  { href: "/app", label: "Dashboard" },
+  { href: "/app", label: "Home" },
   { href: "/app/queue", label: "Queue" },
+  { href: "/app/dashboard", label: "Live" },
   { href: "/app/profile", label: "Profile" },
 ] as const;
 
