@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { SignOutButton } from "@/components/sign-out-button";
 import { isProfileComplete } from "@/lib/profile-completeness";
 import { auth } from "@/server/auth";
 import { getProfile } from "@/server/profile/service";
@@ -15,14 +14,9 @@ export default async function AppHome() {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-16">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="font-mono text-sm text-zinc-500">squadup</p>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome, {profile!.displayName}.
-          </h1>
-        </div>
-        <SignOutButton />
+      <div>
+        <p className="font-mono text-sm text-zinc-500">squadup</p>
+        <h1 className="text-2xl font-semibold tracking-tight">Welcome, {profile!.displayName}.</h1>
       </div>
 
       <div className="rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
@@ -32,15 +26,19 @@ export default async function AppHome() {
           {profile!.availability.length} availability window
           {profile!.availability.length === 1 ? "" : "s"}
         </p>
-        <Link
-          href="/app/profile"
-          className="mt-4 inline-block text-sm font-medium underline underline-offset-4"
-        >
-          View & edit profile
-        </Link>
+        <div className="mt-4 flex gap-4 text-sm font-medium">
+          <Link href="/app/queue" className="underline underline-offset-4">
+            Go to the queue
+          </Link>
+          <Link href="/app/profile" className="underline underline-offset-4">
+            View &amp; edit profile
+          </Link>
+        </div>
       </div>
 
-      <p className="text-sm text-zinc-500">Queueing and matchmaking arrive in the next phases.</p>
+      <p className="text-sm text-zinc-500">
+        Drop into a queue to watch it fill in real time. Matching arrives in the next phase.
+      </p>
     </main>
   );
 }
