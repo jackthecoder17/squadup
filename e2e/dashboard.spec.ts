@@ -15,7 +15,6 @@ const GAME = "valorant";
 test.describe("live dashboard", () => {
   let viewer: TestUser;
   let players: TestUser[] = [];
-  let seededMatchId: string;
 
   test.beforeEach(async () => {
     viewer = await createTestUser();
@@ -27,7 +26,7 @@ test.describe("live dashboard", () => {
       await seedCompleteProfile(u.id, `Player ${i}`);
       players.push(u);
     }
-    seededMatchId = await seedMatch([players[0].id, players[1].id]);
+    await seedMatch([players[0].id, players[1].id]);
   });
 
   test.afterEach(async () => {
