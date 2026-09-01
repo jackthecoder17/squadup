@@ -24,6 +24,7 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  profile  PlayerProfile?
 }
 
 model Account {
@@ -57,4 +58,89 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// Player profiles (feat/player-profiles)
+// ---------------------------------------------------------------------------
+
+enum Region {
+  NA_EAST
+  NA_WEST
+  SA
+  EU_WEST
+  EU_EAST
+  MENA
+  AFRICA
+  ASIA_EAST
+  ASIA_SE
+  OCEANIA
+}
+
+enum PlayStyle {
+  CASUAL
+  COMPETITIVE
+  BOTH
+}
+
+/// Catalog of supported games. Seeded from `src/lib/games.ts`.
+model Game {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  shortName String
+  roles     String[]
+  ranks     String[] // ordered lowest -> highest
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gameProfiles GameProfile[]
+}
+
+model PlayerProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName String
+  region      Region
+  languages   String[]
+  bio         String?
+  timezone    String // IANA id, e.g. "Europe/Berlin"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  games        GameProfile[]
+  availability AvailabilityWindow[]
+
+  @@index([region])
+}
+
+model GameProfile {
+  id        String    @id @default(cuid())
+  profileId String
+  profile   PlayerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  gameId    String
+  game      Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  roles     String[]
+  rank      String
+  playStyle PlayStyle @default(BOTH)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([profileId, gameId])
+  @@index([gameId])
+}
+
+/// One recurring weekly window, in the profile's local timezone. Never crosses
+/// midnight; a late-night slot is stored as two windows.
+model AvailabilityWindow {
+  id          String   @id @default(cuid())
+  profileId   String
+  profile     PlayerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int // 0 = Sunday .. 6 = Saturday
+  startMinute Int // minutes from local midnight
+  endMinute   Int
+  createdAt   DateTime @default(now())
+
+  @@index([profileId])
 }

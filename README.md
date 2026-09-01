@@ -69,6 +69,7 @@ pnpm install
 cp .env.example .env          # then fill AUTH_SECRET + Discord creds
 pnpm db:up                    # Postgres + Redis via docker compose
 pnpm db:migrate               # apply schema
+pnpm db:seed                  # load the game catalog
 pnpm dev                      # http://localhost:3000
 ```
 
@@ -91,15 +92,16 @@ pnpm simulate
 | `pnpm test:e2e`        | Playwright                                   |
 | `pnpm db:up` / `:down` | Start / stop local Postgres + Redis          |
 | `pnpm db:migrate`      | `prisma migrate dev`                         |
+| `pnpm db:seed`         | Load the game catalog                        |
 | `pnpm db:studio`       | Prisma Studio                                |
 
 ## Roadmap
 
 | Phase | Branch                   | Scope                                                     |
 | ----- | ------------------------ | --------------------------------------------------------- |
-| 0     | `chore/project-setup`    | Tooling, CI, Docker, env validation, Prisma init          |
-| 1     | `feat/auth`              | Auth.js + Discord OAuth, protected routes                 |
-| 2     | `feat/player-profiles`   | Onboarding: games, roles, rank, region, languages, avail. |
+| 0 ✅  | `chore/project-setup`    | Tooling, CI, Docker, env validation, Prisma init          |
+| 1 ✅  | `feat/auth`              | Auth.js + Discord OAuth, protected routes                 |
+| 2 ✅  | `feat/player-profiles`   | Onboarding wizard, profile view + editor, game catalog    |
 | 3     | `feat/matchmaking-queue` | Enter/leave queue, presence, SSE + Redis pub/sub          |
 | 4     | `feat/match-engine`      | Worker, constraint scoring, group formation, Glicko-2     |
 | 5     | `feat/match-lobby`       | Lobby, text chat, ready-up, post-match rating             |
