@@ -44,8 +44,8 @@ describe("relaxation curves", () => {
   });
 
   it("rank spread widens by one tier per step, capped", () => {
-    expect(allowedRankSpread(0, CONFIG)).toBe(2);
-    expect(allowedRankSpread(60_000, CONFIG)).toBe(3);
+    expect(allowedRankSpread(0, CONFIG)).toBe(CONFIG.rankSpreadBase);
+    expect(allowedRankSpread(CONFIG.rankSpreadStepMs, CONFIG)).toBe(CONFIG.rankSpreadBase + 1);
     expect(allowedRankSpread(20 * 60_000, CONFIG)).toBe(CONFIG.rankSpreadMax);
   });
 });
