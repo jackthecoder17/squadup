@@ -11,6 +11,7 @@ import {
 
 const profile = {
   region: "EU_WEST",
+  languages: ["English", "German"],
   games: [
     {
       game: { slug: "valorant" },
@@ -43,6 +44,7 @@ describe("buildTicket", () => {
   it("throws when the game profile is missing a rank or roles", () => {
     const thin = {
       region: "EU_WEST",
+      languages: ["English"],
       games: [{ game: { slug: "valorant" }, rank: "", roles: [], playStyle: "BOTH" }],
     };
     expect(() => buildTicket("user-1", thin, "valorant")).toThrow(/rank and at least one role/i);
@@ -68,6 +70,7 @@ describe("ticket serialization", () => {
       rank: "Gold",
       rankIndex: 3,
       roles: [],
+      languages: ["English"],
       playStyle: "BOTH",
       enqueuedAt: 1,
     } satisfies QueueTicket);

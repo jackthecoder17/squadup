@@ -14,6 +14,7 @@ export type QueueTicket = {
   rank: string;
   rankIndex: number;
   roles: string[];
+  languages: string[];
   playStyle: PlayStyle;
   enqueuedAt: number;
 };
@@ -22,6 +23,7 @@ export class QueueError extends Error {}
 
 type ProfileForTicket = {
   region: string;
+  languages: string[];
   games: {
     game: { slug: string };
     rank: string;
@@ -52,6 +54,7 @@ export function buildTicket(
     rank: entry.rank,
     rankIndex: rankIndex(gameSlug, entry.rank),
     roles: entry.roles,
+    languages: profile.languages,
     playStyle: entry.playStyle as PlayStyle,
     enqueuedAt: now,
   };
@@ -65,6 +68,7 @@ export function serializeTicket(ticket: QueueTicket): Record<string, string> {
     rank: ticket.rank,
     rankIndex: String(ticket.rankIndex),
     roles: ticket.roles.join(","),
+    languages: ticket.languages.join(","),
     playStyle: ticket.playStyle,
     enqueuedAt: String(ticket.enqueuedAt),
   };
@@ -81,6 +85,7 @@ export function parseTicket(hash: Record<string, string>): QueueTicket {
     rank: hash.rank ?? "",
     rankIndex: Number(hash.rankIndex ?? "-1"),
     roles: hash.roles ? hash.roles.split(",") : [],
+    languages: hash.languages ? hash.languages.split(",") : [],
     playStyle: (hash.playStyle as PlayStyle) ?? "BOTH",
     enqueuedAt: Number(hash.enqueuedAt ?? "0"),
   };
