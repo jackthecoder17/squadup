@@ -24,7 +24,7 @@ function SaveSection({ title, onSave, children }: SectionProps) {
   const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
 
   return (
-    <section className="space-y-4 border-b border-zinc-200 pb-10 dark:border-zinc-800">
+    <section className="border-border space-y-4 border-b pb-10">
       <h2 className="text-lg font-semibold">{title}</h2>
       {children}
       <div className="flex items-center gap-3">
@@ -40,18 +40,12 @@ function SaveSection({ title, onSave, children }: SectionProps) {
               );
             });
           }}
-          className="bg-foreground text-background rounded-full px-5 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="bg-primary text-primary-foreground rounded-full px-5 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           {isPending ? "Saving…" : `Save ${title.toLowerCase()}`}
         </button>
         {status ? (
-          <span
-            className={
-              status.ok
-                ? "text-sm text-green-600 dark:text-green-400"
-                : "text-sm text-red-600 dark:text-red-400"
-            }
-          >
+          <span className={status.ok ? "text-accent text-sm" : "text-danger text-sm"}>
             {status.message}
           </span>
         ) : null}

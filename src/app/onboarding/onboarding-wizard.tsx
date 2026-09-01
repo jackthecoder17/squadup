@@ -82,7 +82,7 @@ export function OnboardingWizard() {
 
   return (
     <div className="mx-auto w-full max-w-xl px-6 py-16">
-      <p className="font-mono text-sm text-zinc-500">squadup</p>
+      <p className="text-muted font-mono text-sm">squadup</p>
       <h1 className="mt-1 text-2xl font-semibold tracking-tight">Set up your profile</h1>
 
       <ol className="mt-6 flex gap-2">
@@ -91,9 +91,7 @@ export function OnboardingWizard() {
             key={label}
             className={cn(
               "flex-1 border-t-2 pt-2 text-xs font-medium",
-              index <= step
-                ? "border-foreground text-foreground"
-                : "border-zinc-200 text-zinc-400 dark:border-zinc-800",
+              index <= step ? "border-foreground text-foreground" : "border-border text-subtle",
             )}
           >
             {label}
@@ -109,9 +107,7 @@ export function OnboardingWizard() {
       </div>
 
       {error ? (
-        <p className="mt-6 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
+        <p className="bg-danger-surface text-danger mt-6 rounded-lg px-3 py-2 text-sm">{error}</p>
       ) : null}
 
       <div className="mt-8 flex items-center justify-between">
@@ -119,7 +115,7 @@ export function OnboardingWizard() {
           type="button"
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0 || isPending}
-          className="hover:text-foreground rounded-full px-4 py-2 text-sm font-medium text-zinc-600 disabled:opacity-40 dark:text-zinc-400"
+          className="hover:text-foreground text-muted rounded-full px-4 py-2 text-sm font-medium disabled:opacity-40"
         >
           Back
         </button>
@@ -129,7 +125,7 @@ export function OnboardingWizard() {
             type="button"
             onClick={() => setStep((s) => s + 1)}
             disabled={!stepValid}
-            className="bg-foreground text-background rounded-full px-5 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="bg-primary text-primary-foreground rounded-full px-5 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             Next
           </button>
@@ -138,7 +134,7 @@ export function OnboardingWizard() {
             type="button"
             onClick={submit}
             disabled={!canSubmit || isPending}
-            className="bg-foreground text-background rounded-full px-5 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="bg-primary text-primary-foreground rounded-full px-5 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             {isPending ? "Saving…" : "Finish setup"}
           </button>

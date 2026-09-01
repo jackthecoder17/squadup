@@ -37,9 +37,9 @@ export function ChipGroup({
             className={cn(
               "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
               isSelected
-                ? "bg-foreground text-background border-transparent"
-                : "border-zinc-300 text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500",
-              isDisabled && "cursor-not-allowed opacity-40 hover:border-zinc-300",
+                ? "bg-primary text-primary-foreground border-transparent"
+                : "border-border text-muted hover:border-subtle",
+              isDisabled && "hover:border-border cursor-not-allowed opacity-40",
             )}
           >
             {option}

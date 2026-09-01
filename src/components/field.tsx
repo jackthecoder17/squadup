@@ -17,12 +17,12 @@ export function Field({ label, htmlFor, hint, error, children, className }: Fiel
       <label htmlFor={htmlFor} className="block text-sm font-medium">
         {label}
       </label>
-      {hint ? <p className="text-xs text-zinc-500">{hint}</p> : null}
+      {hint ? <p className="text-muted text-xs">{hint}</p> : null}
       {children}
-      {error ? <p className="text-xs text-red-600 dark:text-red-400">{error}</p> : null}
+      {error ? <p className="text-danger text-xs">{error}</p> : null}
     </div>
   );
 }
 
 export const inputClass =
-  "w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:focus:border-zinc-400";
+  "w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-ring";
