@@ -73,10 +73,12 @@ pnpm db:seed                  # load the game catalog
 pnpm dev                      # http://localhost:3000
 ```
 
-Run the matchmaking worker in a second terminal (the simulator lands in a later phase):
+In two more terminals, run the worker and the player simulator, then open
+`/app/dashboard` to watch queues fill and matches form live:
 
 ```bash
-pnpm worker            # forms matches from the queue every few seconds
+pnpm worker                    # forms matches from the queue every few seconds
+SIM_BOTS=60 pnpm simulate      # bot players that join / leave / re-queue
 ```
 
 ## Scripts
@@ -90,6 +92,7 @@ pnpm worker            # forms matches from the queue every few seconds
 | `pnpm test:int`        | Integration tests — real Postgres + Redis    |
 | `pnpm test:e2e`        | Playwright                                   |
 | `pnpm worker`          | Run the matchmaking worker                   |
+| `pnpm simulate`        | Run the bot-player simulator (`SIM_BOTS=N`)  |
 | `pnpm db:up` / `:down` | Start / stop local Postgres + Redis          |
 | `pnpm db:migrate`      | `prisma migrate dev`                         |
 | `pnpm db:seed`         | Load the game catalog                        |
@@ -105,7 +108,7 @@ pnpm worker            # forms matches from the queue every few seconds
 | 3 ✅  | `feat/matchmaking-queue` | Enter/leave queue, live presence, SSE + Redis pub/sub         |
 | 4 ✅  | `feat/match-engine`      | Worker, relaxing constraint scoring, group formation, matches |
 | 5 ✅  | `feat/match-lobby`       | Lobby: live chat, ready-up state machine, launch, ratings     |
-| 6     | `feat/player-simulator`  | Bot players + live visualizer dashboard                       |
+| 6 ✅  | `feat/player-simulator`  | Bot-player simulator + live visualizer dashboard              |
 | 7     | `feat/design-system`     | Design system, dark theme, responsive, a11y, empty states     |
 
 ## Contributing
