@@ -200,12 +200,14 @@ export async function markInMatch(userIds: string[], now = Date.now()): Promise<
   await pipeline.exec();
 }
 
-export function publishMatch(
-  gameSlug: string,
-  matchId: string,
-  userIds: string[],
-): Promise<number> {
-  return publish({ kind: "match", gameSlug, matchId, userIds });
+export function publishMatch(match: {
+  gameSlug: string;
+  matchId: string;
+  userIds: string[];
+  region: string;
+  rankSpread: number;
+}): Promise<number> {
+  return publish({ kind: "match", ...match });
 }
 
 export async function publishQueueSize(slug: string): Promise<void> {

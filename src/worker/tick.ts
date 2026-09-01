@@ -48,10 +48,23 @@ async function matchGame(game: GameDefinition, now: number): Promise<number> {
       waitedMs: Math.max(0, now - enqueuedAt),
     });
   }
-  await pruneStaleEntries(game.slug, stale);
-  if (candidates.length < game.teamSize) return 0;
+  // Drop queue members whose account no longer exists (deleted between enqueue
+  // and now) — they'd fail the MatchPlayer foreign key.
+  const knownUsers = new Set(
+    (
+      await db.user.findMany({
+        where: { id: { in: candidates.map((c) => c.userId) } },
+        select: { id: true },
+      })
+    ).map((u) => u.id),
+  );
+  const ghosts = candidates.filter((c) => !knownUsers.has(c.userId)).map((c) => c.userId);
+  await pruneStaleEntries(game.slug, [...stale, ...ghosts]);
 
-  const groups = formMatches(candidates, game.teamSize, DEFAULT_MATCH_CONFIG);
+  const live = candidates.filter((c) => knownUsers.has(c.userId));
+  if (live.length < game.teamSize) return 0;
+
+  const groups = formMatches(live, game.teamSize, DEFAULT_MATCH_CONFIG);
   if (groups.length === 0) return 0;
 
   const gameRow = await db.game.findUniqueOrThrow({
@@ -87,7 +100,13 @@ async function matchGame(game: GameDefinition, now: number): Promise<number> {
     });
 
     await markInMatch(userIds, now);
-    await publishMatch(game.slug, match.id, userIds);
+    await publishMatch({
+      gameSlug: game.slug,
+      matchId: match.id,
+      userIds,
+      region: group.region,
+      rankSpread: group.rankSpread,
+    });
     await publishQueueSize(game.slug);
     formed += 1;
   }
