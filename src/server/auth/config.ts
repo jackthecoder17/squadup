@@ -23,6 +23,10 @@ declare module "next-auth" {
 export const authConfig = {
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
+  // This app is self-hosted, not on Vercel, so there's no inferred deployment
+  // URL. Trust the incoming Host header. In production put the app behind a
+  // proxy that sets Host correctly (or set AUTH_URL).
+  trustHost: true,
   providers: [Discord],
   pages: {
     signIn: "/signin",
