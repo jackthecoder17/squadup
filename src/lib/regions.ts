@@ -23,3 +23,27 @@ export function isRegion(value: string): value is Region {
 export function regionLabel(region: Region): string {
   return REGIONS[region];
 }
+
+/**
+ * Regions that share a plausible low-latency bridge. Matchmaking widens from
+ * "same region only" to "distance <= 1" to "anywhere" as a player waits.
+ */
+const ADJACENT: readonly [Region, Region][] = [
+  ["NA_EAST", "NA_WEST"],
+  ["NA_EAST", "SA"],
+  ["NA_WEST", "OCEANIA"],
+  ["EU_WEST", "EU_EAST"],
+  ["EU_WEST", "MENA"],
+  ["EU_EAST", "MENA"],
+  ["MENA", "AFRICA"],
+  ["ASIA_EAST", "ASIA_SE"],
+  ["ASIA_SE", "OCEANIA"],
+];
+
+const ADJACENCY = new Set(ADJACENT.flatMap(([a, b]) => [`${a}|${b}`, `${b}|${a}`]));
+
+/** 0 = same region, 1 = adjacent, 2 = far. */
+export function regionDistance(a: Region, b: Region): 0 | 1 | 2 {
+  if (a === b) return 0;
+  return ADJACENCY.has(`${a}|${b}`) ? 1 : 2;
+}
