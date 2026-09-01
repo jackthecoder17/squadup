@@ -28,4 +28,8 @@ export function createRedisSubscriber(): Redis {
   return new Redis(env.REDIS_URL, { maxRetriesPerRequest: null });
 }
 
+/** The global queue/presence channel. */
 export const CHANNEL = "mm:events";
+
+/** Per-match channel for lobby chat, ready state, and state transitions. */
+export const matchChannel = (matchId: string) => `mm:match:${matchId}`;

@@ -70,8 +70,11 @@ test.describe("match engine", () => {
 
     await row.getByRole("link", { name: "Open lobby" }).click();
     await expect(page).toHaveURL(/\/app\/match\//);
-    await expect(page.getByRole("heading")).toContainText("squad found");
-    await expect(page.getByText("Hero")).toBeVisible();
-    await expect(page.getByRole("listitem")).toHaveCount(5);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("VALORANT");
+    await expect(page.getByText("Hero (you)")).toBeVisible();
+    // Squad roster — the five matched players.
+    await expect(
+      page.getByRole("list").filter({ hasText: "Hero (you)" }).getByRole("listitem"),
+    ).toHaveCount(5);
   });
 });
