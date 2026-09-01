@@ -100,16 +100,16 @@ SIM_BOTS=60 pnpm simulate      # bot players that join / leave / re-queue
 
 ## Roadmap
 
-| Phase | Branch                   | Scope                                                         |
-| ----- | ------------------------ | ------------------------------------------------------------- |
-| 0 ✅  | `chore/project-setup`    | Tooling, CI, Docker, env validation, Prisma init              |
-| 1 ✅  | `feat/auth`              | Auth.js + Discord OAuth, protected routes                     |
-| 2 ✅  | `feat/player-profiles`   | Onboarding wizard, profile view + editor, game catalog        |
-| 3 ✅  | `feat/matchmaking-queue` | Enter/leave queue, live presence, SSE + Redis pub/sub         |
-| 4 ✅  | `feat/match-engine`      | Worker, relaxing constraint scoring, group formation, matches |
-| 5 ✅  | `feat/match-lobby`       | Lobby: live chat, ready-up state machine, launch, ratings     |
-| 6 ✅  | `feat/player-simulator`  | Bot-player simulator + live visualizer dashboard              |
-| 7     | `feat/design-system`     | Design system, dark theme, responsive, a11y, empty states     |
+| Phase | Branch                   | Scope                                                                   |
+| ----- | ------------------------ | ----------------------------------------------------------------------- |
+| 0 ✅  | `chore/project-setup`    | Tooling, CI, Docker, env validation, Prisma init                        |
+| 1 ✅  | `feat/auth`              | Auth.js + Discord OAuth, protected routes                               |
+| 2 ✅  | `feat/player-profiles`   | Onboarding wizard, profile view + editor, game catalog                  |
+| 3 ✅  | `feat/matchmaking-queue` | Enter/leave queue, live presence, SSE + Redis pub/sub                   |
+| 4 ✅  | `feat/match-engine`      | Worker, relaxing constraint scoring, group formation, matches           |
+| 5 ✅  | `feat/match-lobby`       | Lobby: live chat, ready-up state machine, launch, ratings               |
+| 6 ✅  | `feat/player-simulator`  | Bot-player simulator + live visualizer dashboard                        |
+| 7 ✅  | `feat/design-system`     | Token-based design system, dark mode toggle, loading/empty/error states |
 
 ## Contributing
 
