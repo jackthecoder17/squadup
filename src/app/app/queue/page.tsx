@@ -6,6 +6,8 @@ import { getActiveMatchForUser } from "@/server/match/service";
 import { getProfile } from "@/server/profile/service";
 import { getSnapshot } from "@/server/queue/service";
 
+import { PageHeader } from "@/components/ui/page-header";
+
 import { QueuePanel } from "./queue-panel";
 
 export const metadata = { title: "Queue" };
@@ -29,9 +31,8 @@ export default async function QueuePage() {
   }));
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
-      <p className="font-mono text-sm text-zinc-500">squadup</p>
-      <h1 className="mt-1 mb-8 text-2xl font-semibold tracking-tight">Queue</h1>
+    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
+      <PageHeader title="Queue" description="Pick a game and get grouped with players who fit." />
 
       <QueuePanel
         userId={session.user.id}

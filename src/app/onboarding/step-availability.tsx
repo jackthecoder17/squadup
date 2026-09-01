@@ -42,7 +42,7 @@ export function StepAvailability({ data, update }: Props) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-zinc-500">
+      <p className="text-muted text-sm">
         When are you usually online to play? Add at least one window. Times are in your timezone (
         {data.timezone || "unknown"}).
       </p>
@@ -73,7 +73,7 @@ export function StepAvailability({ data, update }: Props) {
                 value={window.start}
                 onChange={(e) => patchWindow(window.id, { start: e.target.value })}
               />
-              <span className="text-sm text-zinc-500">to</span>
+              <span className="text-muted text-sm">to</span>
               <input
                 aria-label="End time"
                 type="time"
@@ -82,14 +82,12 @@ export function StepAvailability({ data, update }: Props) {
                 onChange={(e) => patchWindow(window.id, { end: e.target.value })}
               />
               {invalid ? (
-                <span className="text-xs text-red-600 dark:text-red-400">
-                  End must be after start
-                </span>
+                <span className="text-danger text-xs">End must be after start</span>
               ) : null}
               <button
                 type="button"
                 onClick={() => update({ windows: data.windows.filter((w) => w.id !== window.id) })}
-                className="ml-auto text-sm text-zinc-500 hover:text-red-600"
+                className="text-muted hover:text-danger ml-auto text-sm"
               >
                 Remove
               </button>
@@ -101,14 +99,14 @@ export function StepAvailability({ data, update }: Props) {
       <button
         type="button"
         onClick={() => update({ windows: [...data.windows, newWindow()] })}
-        className="rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-600 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-300"
+        className="border-border text-muted hover:border-subtle rounded-lg border border-dashed px-3 py-2 text-sm font-medium"
       >
         + Add window
       </button>
 
       {merged.length > 0 ? (
-        <div className="rounded-lg bg-zinc-100 p-3 text-sm dark:bg-zinc-900">
-          <p className="mb-1 text-xs font-medium text-zinc-500">Weekly schedule</p>
+        <div className="bg-surface-muted rounded-lg p-3 text-sm">
+          <p className="text-muted mb-1 text-xs font-medium">Weekly schedule</p>
           <ul className="space-y-0.5">
             {merged.map((w) => (
               <li key={`${w.dayOfWeek}-${w.startMinute}`}>{formatWindow(w)}</li>

@@ -38,7 +38,7 @@ export function StepGames({ data, update }: Props) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-zinc-500">
+      <p className="text-muted text-sm">
         Pick the games you want to be matched in. Add at least one.
       </p>
 
@@ -54,8 +54,8 @@ export function StepGames({ data, update }: Props) {
               className={cn(
                 "rounded-lg border px-3 py-2 text-left text-sm font-medium transition-colors",
                 active
-                  ? "bg-foreground text-background border-transparent"
-                  : "border-zinc-300 hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-500",
+                  ? "bg-primary text-primary-foreground border-transparent"
+                  : "border-border hover:border-subtle",
               )}
             >
               {game.name}
@@ -69,15 +69,12 @@ export function StepGames({ data, update }: Props) {
           const game = GAME_CATALOG.find((g) => g.slug === draft.slug);
           if (!game) return null;
           return (
-            <div
-              key={draft.slug}
-              className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
-            >
+            <div key={draft.slug} className="border-border rounded-lg border p-4">
               <h3 className="mb-3 text-sm font-semibold">{game.name}</h3>
 
               <div className="space-y-3">
                 <div>
-                  <p className="mb-1.5 text-xs font-medium text-zinc-500">Roles (up to 5)</p>
+                  <p className="text-muted mb-1.5 text-xs font-medium">Roles (up to 5)</p>
                   <ChipGroup
                     aria-label={`${game.name} roles`}
                     options={game.roles}
@@ -95,7 +92,7 @@ export function StepGames({ data, update }: Props) {
 
                 <div className="flex flex-wrap gap-3">
                   <label className="flex-1 space-y-1">
-                    <span className="text-xs font-medium text-zinc-500">Current rank</span>
+                    <span className="text-muted text-xs font-medium">Current rank</span>
                     <select
                       className={inputClass}
                       value={draft.rank}
@@ -113,7 +110,7 @@ export function StepGames({ data, update }: Props) {
                   </label>
 
                   <label className="flex-1 space-y-1">
-                    <span className="text-xs font-medium text-zinc-500">Intent</span>
+                    <span className="text-muted text-xs font-medium">Intent</span>
                     <select
                       className={inputClass}
                       value={draft.playStyle}

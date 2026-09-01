@@ -14,6 +14,6 @@ test.describe("auth", () => {
 
   test("landing page prompts sign-in when logged out", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("link", { name: /sign in to get started/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /sign in with discord/i })).toBeVisible();
   });
 });

@@ -42,13 +42,10 @@ export default async function EditProfilePage() {
     <main className="mx-auto w-full max-w-xl flex-1 px-6 py-16">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <p className="font-mono text-sm text-zinc-500">squadup</p>
+          <p className="text-muted font-mono text-sm">squadup</p>
           <h1 className="text-2xl font-semibold tracking-tight">Edit profile</h1>
         </div>
-        <Link
-          href="/app/profile"
-          className="hover:text-foreground text-sm font-medium text-zinc-500"
-        >
+        <Link href="/app/profile" className="hover:text-foreground text-muted text-sm font-medium">
           Done
         </Link>
       </div>

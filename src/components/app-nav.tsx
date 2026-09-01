@@ -16,18 +16,17 @@ export function AppNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1">
+    <nav className="flex w-max gap-0.5">
       {LINKS.map((link) => {
         const active = link.href === "/app" ? pathname === "/app" : pathname.startsWith(link.href);
         return (
           <Link
             key={link.href}
             href={link.href}
+            aria-current={active ? "page" : undefined}
             className={cn(
-              "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-              active
-                ? "text-foreground bg-zinc-100 dark:bg-zinc-900"
-                : "hover:text-foreground text-zinc-500",
+              "rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
+              active ? "bg-surface-muted text-foreground" : "text-muted hover:text-foreground",
             )}
           >
             {link.label}

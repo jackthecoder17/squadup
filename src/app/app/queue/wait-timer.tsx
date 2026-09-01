@@ -5,12 +5,20 @@ import { useEffect, useState } from "react";
 import { waitLabel } from "@/lib/queue";
 
 export function WaitTimer({ since }: { since: number }) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    const raf = requestAnimationFrame(() => setNow(Date.now()));
     const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(id);
+    };
   }, []);
 
-  return <span className="font-mono tabular-nums">{waitLabel(now - since)}</span>;
+  return (
+    <span className="font-mono tabular-nums">
+      {now === null ? waitLabel(0) : waitLabel(now - since)}
+    </span>
+  );
 }

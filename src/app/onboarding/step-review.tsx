@@ -20,7 +20,7 @@ function normalized(data: WizardData): NormalizedWindow[] {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-3 py-1.5 text-sm">
-      <span className="w-28 shrink-0 text-zinc-500">{label}</span>
+      <span className="text-muted w-28 shrink-0">{label}</span>
       <span className="min-w-0">{children}</span>
     </div>
   );
@@ -31,7 +31,7 @@ export function StepReview({ data }: { data: WizardData }) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-zinc-500">
+      <p className="text-muted text-sm">
         Looks right? You can change any of this later from your profile.
       </p>
 
@@ -66,7 +66,7 @@ export function StepReview({ data }: { data: WizardData }) {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-zinc-500">—</p>
+          <p className="text-muted text-sm">—</p>
         )}
       </section>
     </div>

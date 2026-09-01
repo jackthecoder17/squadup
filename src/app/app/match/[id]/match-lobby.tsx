@@ -117,11 +117,11 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-sm text-zinc-500">squadup</p>
+          <p className="text-muted font-mono text-sm">squadup</p>
           <h1 className="text-2xl font-semibold tracking-tight">
             {initial.gameName} — {STATE_LABEL[state]}
           </h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="text-muted mt-1 text-sm">
             {initial.region} · {initial.players.length} players · rank spread {initial.rankSpread}
           </p>
         </div>
@@ -129,7 +129,7 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
           <button
             type="button"
             onClick={() => act(() => leaveLobbyAction(matchId))}
-            className="shrink-0 text-sm font-medium text-zinc-500 hover:text-red-600"
+            className="text-muted hover:text-danger shrink-0 text-sm font-medium"
           >
             Leave lobby
           </button>
@@ -137,7 +137,7 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
       </div>
 
       {state === "CANCELLED" ? (
-        <div className="rounded-xl border border-zinc-200 p-5 text-sm dark:border-zinc-800">
+        <div className="border-border rounded-xl border p-5 text-sm">
           <p>This match was cancelled — someone left the lobby.</p>
           <Link
             href="/app/queue"
@@ -149,8 +149,8 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
       ) : null}
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-zinc-500">Squad</h2>
-        <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+        <h2 className="text-muted mb-2 text-sm font-semibold">Squad</h2>
+        <ul className="divide-border border-border divide-y rounded-xl border">
           {initial.players.map((player) => {
             const isReady = ready[player.userId] ?? false;
             return (
@@ -160,7 +160,7 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
                     {player.name}
                     {player.userId === userId ? " (you)" : ""}
                   </p>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-muted text-sm">
                     {player.rank} · {player.roles.join(", ")}
                   </p>
                 </div>
@@ -171,8 +171,8 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
                     className={cn(
                       "shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
                       myReady
-                        ? "bg-green-600 text-white hover:opacity-90"
-                        : "border border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900",
+                        ? "bg-accent text-accent-foreground hover:opacity-90"
+                        : "border-border hover:bg-surface-muted border",
                     )}
                   >
                     {myReady ? "Ready" : "Ready up"}
@@ -181,7 +181,7 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
                   <span
                     className={cn(
                       "shrink-0 text-sm font-medium",
-                      isReady ? "text-green-600 dark:text-green-400" : "text-zinc-400",
+                      isReady ? "text-accent" : "text-subtle",
                     )}
                   >
                     {isReady ? "Ready" : "Not ready"}
@@ -192,14 +192,14 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
           })}
         </ul>
 
-        <div className="mt-3 text-sm text-zinc-500">
+        <div className="text-muted mt-3 text-sm">
           {state === "FORMED" ? `${readyCount}/${initial.players.length} ready` : null}
           {state === "READY" ? (
             <button
               type="button"
               onClick={() => act(() => launchAction(matchId))}
               disabled={!canLaunch(state)}
-              className="bg-foreground text-background rounded-full px-5 py-2 text-sm font-medium hover:opacity-90"
+              className="bg-primary text-primary-foreground rounded-full px-5 py-2 text-sm font-medium hover:opacity-90"
             >
               Launch match
             </button>
@@ -208,7 +208,7 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
             <button
               type="button"
               onClick={() => act(() => finishAction(matchId))}
-              className="rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
+              className="border-border hover:bg-surface-muted rounded-full border px-5 py-2 text-sm font-medium"
             >
               Finish match
             </button>
@@ -219,7 +219,7 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
 
       {isRateable(state) ? (
         <section>
-          <h2 className="mb-2 text-sm font-semibold text-zinc-500">Rate your squad</h2>
+          <h2 className="text-muted mb-2 text-sm font-semibold">Rate your squad</h2>
           <ul className="space-y-2">
             {teammates.map((mate) => {
               const value = ratings[mate.userId];
@@ -241,8 +241,8 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
                         className={cn(
                           "rounded-full border px-3 py-1 text-sm transition-colors",
                           value === v
-                            ? "bg-foreground text-background border-transparent"
-                            : "border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900",
+                            ? "bg-primary text-primary-foreground border-transparent"
+                            : "border-border hover:bg-surface-muted",
                         )}
                       >
                         {v === 1 ? "👍" : "👎"}
@@ -257,10 +257,10 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
       ) : null}
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-zinc-500">Chat</h2>
-        <div className="h-56 overflow-y-auto rounded-xl border border-zinc-200 p-3 text-sm dark:border-zinc-800">
+        <h2 className="text-muted mb-2 text-sm font-semibold">Chat</h2>
+        <div className="border-border h-56 overflow-y-auto rounded-xl border p-3 text-sm">
           {messages.length === 0 ? (
-            <p className="text-zinc-400">No messages yet.</p>
+            <p className="text-subtle">No messages yet.</p>
           ) : (
             <ul className="space-y-1.5">
               {messages.map((message) => (
@@ -268,7 +268,7 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
                   <span
                     className={cn(
                       "font-medium",
-                      message.userId === userId ? "text-foreground" : "text-zinc-500",
+                      message.userId === userId ? "text-foreground" : "text-muted",
                     )}
                   >
                     {message.name}:
@@ -293,12 +293,12 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
             disabled={!canChat(state)}
             placeholder={canChat(state) ? "Message your squad…" : "Chat is closed"}
             maxLength={500}
-            className="flex-1 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-zinc-500 disabled:opacity-50 dark:border-zinc-700"
+            className="border-border focus:border-ring flex-1 rounded-lg border bg-transparent px-3 py-2 text-sm outline-none disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!canChat(state) || draft.trim().length === 0}
-            className="bg-foreground text-background rounded-lg px-4 text-sm font-medium disabled:opacity-40"
+            className="bg-primary text-primary-foreground rounded-lg px-4 text-sm font-medium disabled:opacity-40"
           >
             Send
           </button>
@@ -306,9 +306,7 @@ export function MatchLobby({ matchId, userId, initial }: Props) {
       </section>
 
       {error ? (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
+        <p className="bg-danger-surface text-danger rounded-lg px-3 py-2 text-sm">{error}</p>
       ) : null}
     </div>
   );

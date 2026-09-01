@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ProfileSummary } from "@/components/profile-summary";
+import { buttonClass } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { auth } from "@/server/auth";
 import { getProfile } from "@/server/profile/service";
 
@@ -15,20 +17,15 @@ export default async function ProfilePage() {
   if (!profile) redirect("/onboarding");
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <p className="font-mono text-sm text-zinc-500">squadup</p>
-          <h1 className="text-2xl font-semibold tracking-tight">Your profile</h1>
-        </div>
-        <Link
-          href="/app/profile/edit"
-          className="bg-foreground text-background rounded-full px-4 py-1.5 text-sm font-medium"
-        >
-          Edit
-        </Link>
-      </div>
-
+    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
+      <PageHeader
+        title="Your profile"
+        actions={
+          <Link href="/app/profile/edit" className={buttonClass("primary", "sm")}>
+            Edit
+          </Link>
+        }
+      />
       <ProfileSummary profile={profile} />
     </main>
   );
