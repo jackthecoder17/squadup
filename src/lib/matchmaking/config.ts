@@ -28,7 +28,7 @@ export type MatchConfig = {
 export const DEFAULT_MATCH_CONFIG: MatchConfig = {
   regionRelaxMs: [90_000, 240_000],
   rankSpreadBase: 2,
-  rankSpreadStepMs: 60_000,
+  rankSpreadStepMs: 45_000,
   rankSpreadMax: 6,
   playStyleRelaxMs: 180_000,
   languageRelaxMs: 120_000,

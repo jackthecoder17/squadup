@@ -8,7 +8,14 @@ export type StreamEvent =
     }
   | { kind: "queue"; gameSlug: string; size: number }
   | { kind: "presence"; online: number }
-  | { kind: "match"; gameSlug: string; matchId: string; userIds: string[] }
+  | {
+      kind: "match";
+      gameSlug: string;
+      matchId: string;
+      userIds: string[];
+      region: string;
+      rankSpread: number;
+    }
   | { kind: "match-cancelled"; gameSlug: string; matchId: string; userIds: string[] };
 
 /** Serialize one Server-Sent Event frame. */

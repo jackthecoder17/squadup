@@ -57,6 +57,38 @@ export function displayNameFor(player: MatchPlayerView): string {
   return player.user.profile?.displayName ?? player.user.name ?? "Player";
 }
 
+export type RecentMatch = {
+  id: string;
+  gameSlug: string;
+  gameName: string;
+  region: string;
+  rankSpread: number;
+  state: string;
+  size: number;
+  createdAt: string;
+};
+
+export async function getRecentMatches(limit = 15): Promise<RecentMatch[]> {
+  const rows = await db.match.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      game: { select: { slug: true, name: true } },
+      _count: { select: { players: true } },
+    },
+  });
+  return rows.map((row) => ({
+    id: row.id,
+    gameSlug: row.game.slug,
+    gameName: row.game.name,
+    region: row.region,
+    rankSpread: row.rankSpread,
+    state: row.state,
+    size: row._count.players,
+    createdAt: row.createdAt.toISOString(),
+  }));
+}
+
 export async function getMessages(matchId: string, limit = 100): Promise<LobbyMessage[]> {
   const rows = await db.matchMessage.findMany({
     where: { matchId },
