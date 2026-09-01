@@ -102,7 +102,7 @@ pnpm simulate
 | 0 ✅  | `chore/project-setup`    | Tooling, CI, Docker, env validation, Prisma init          |
 | 1 ✅  | `feat/auth`              | Auth.js + Discord OAuth, protected routes                 |
 | 2 ✅  | `feat/player-profiles`   | Onboarding wizard, profile view + editor, game catalog    |
-| 3     | `feat/matchmaking-queue` | Enter/leave queue, presence, SSE + Redis pub/sub          |
+| 3 ✅  | `feat/matchmaking-queue` | Enter/leave queue, live presence, SSE + Redis pub/sub     |
 | 4     | `feat/match-engine`      | Worker, constraint scoring, group formation, Glicko-2     |
 | 5     | `feat/match-lobby`       | Lobby, text chat, ready-up, post-match rating             |
 | 6     | `feat/player-simulator`  | Bot players + live visualizer dashboard                   |
