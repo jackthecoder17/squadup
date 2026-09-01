@@ -1,0 +1,30 @@
+name: Matchmaking tick
+
+# The deployed app is serverless, so there's no long-lived worker/simulator.
+# This scheduled job pokes /api/cron/tick every few minutes to keep the bot
+# population moving and matches forming. Needs two repo secrets:
+#   PROD_URL     e.g. https://squadup.vercel.app
+#   CRON_SECRET  same value set on the host
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: matchmaking-tick
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Poke the tick endpoint
+        run: |
+          if [ -z "${{ secrets.PROD_URL }}" ]; then
+            echo "PROD_URL secret not set — skipping."
+            exit 0
+          fi
+          curl -sS -X POST "${{ secrets.PROD_URL }}/api/cron/tick" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --max-time 90 -w "\nHTTP %{http_code}\n" -o /dev/stdout
