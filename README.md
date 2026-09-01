@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# squadup
 
-## Getting Started
+Matchmaking for **people, not lobbies**. Players set the games they play, their roles,
+rank, region, languages and availability, drop into a queue, and a matchmaking engine
+groups them with players who actually fit — then drops the group into a lobby with chat
+and a ready-up flow.
 
-First, run the development server:
+> Portfolio project. The interesting part is the **matchmaking engine + a live
+> visualizer driven by simulated players**, so the whole system demos under load with
+> zero real users.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+| Concern       | Choice                                                      |
+| ------------- | ----------------------------------------------------------- |
+| Framework     | Next.js 16 (App Router, RSC, Server Actions), React 19.2    |
+| Language      | TypeScript (strict)                                         |
+| Styling       | Tailwind CSS v4                                             |
+| Database      | PostgreSQL + Prisma ORM                                     |
+| Realtime      | Server-Sent Events backed by Redis pub/sub                  |
+| Queue / cache | Redis (`ioredis`)                                           |
+| Auth          | Auth.js v5 — Discord OAuth, Prisma adapter                  |
+| Worker        | Standalone Node process (`tsx`) running the matching passes |
+| Tests         | Vitest + Testing Library (unit), Playwright (e2e)           |
+| Tooling       | ESLint (flat), Prettier, Husky + lint-staged, Commitlint    |
+| CI            | GitHub Actions — format, lint, typecheck, test, build, e2e  |
+
+## Architecture
+
+```
+                         ┌─────────────────────────────┐
+  Browser  ──HTTP/RSC──▶ │  Next.js app (app/)          │
+     ▲                   │  · Server Components / Actions│
+     │  SSE stream        │  · Route handlers            │
+     └───────────────────┤  · /api/stream (SSE)         │
+                         └───────┬─────────────┬────────┘
+                                 │             │
+                         Prisma  │             │  publish / subscribe
+                                 ▼             ▼
+                         ┌────────────┐   ┌──────────┐
+                         │ PostgreSQL │   │  Redis   │
+                         │  users,    │   │ queue set│
+                         │  profiles, │   │ presence │
+                         │  matches   │   │ pub/sub  │
+                         └─────▲──────┘   └────▲─────┘
+                               │               │
+                         ┌─────┴───────────────┴────────┐
+                         │  Matchmaking worker (worker/) │
+                         │  · reads queue every N s      │
+                         │  · constraint scoring         │
+                         │  · forms groups, writes match │
+                         │  · publishes events           │
+                         └───────────────────────────────┘
+                                       ▲
+                         ┌─────────────┴────────────┐
+                         │  Player simulator         │
+                         │  bots join/leave the queue│
+                         └───────────────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Decisions and their rationale live in [`docs/adr/`](docs/adr).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Getting started
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Prerequisites: Node 20.9+, pnpm 10, Docker.
 
-## Learn More
+```bash
+pnpm install
+cp .env.example .env          # then fill AUTH_SECRET + Discord creds
+pnpm db:up                    # Postgres + Redis via docker compose
+pnpm db:migrate               # apply schema
+pnpm dev                      # http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+Run the worker and simulator (added in later phases) in separate terminals:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm worker
+pnpm simulate
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+| Script                 | Does                                         |
+| ---------------------- | -------------------------------------------- |
+| `pnpm dev`             | Next dev server (Turbopack)                  |
+| `pnpm build`           | Production build                             |
+| `pnpm validate`        | format check → lint → typecheck → unit tests |
+| `pnpm test`            | Vitest once                                  |
+| `pnpm test:watch`      | Vitest watch                                 |
+| `pnpm test:e2e`        | Playwright                                   |
+| `pnpm db:up` / `:down` | Start / stop local Postgres + Redis          |
+| `pnpm db:migrate`      | `prisma migrate dev`                         |
+| `pnpm db:studio`       | Prisma Studio                                |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Roadmap
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Phase | Branch                   | Scope                                                     |
+| ----- | ------------------------ | --------------------------------------------------------- |
+| 0     | `chore/project-setup`    | Tooling, CI, Docker, env validation, Prisma init          |
+| 1     | `feat/auth`              | Auth.js + Discord OAuth, protected routes                 |
+| 2     | `feat/player-profiles`   | Onboarding: games, roles, rank, region, languages, avail. |
+| 3     | `feat/matchmaking-queue` | Enter/leave queue, presence, SSE + Redis pub/sub          |
+| 4     | `feat/match-engine`      | Worker, constraint scoring, group formation, Glicko-2     |
+| 5     | `feat/match-lobby`       | Lobby, text chat, ready-up, post-match rating             |
+| 6     | `feat/player-simulator`  | Bot players + live visualizer dashboard                   |
+| 7     | `feat/design-system`     | Design system, dark theme, responsive, a11y, empty states |
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). TL;DR: Conventional Commits, branch per phase,
+`pnpm validate` must pass, hooks enforce it.
