@@ -14,9 +14,12 @@ architecture diagram and phase roadmap, `docs/adr/` for why things are the way t
 - Package manager: **pnpm**. Node 20.9+.
 - **Conventional Commits**, enforced by commitlint. One branch per roadmap phase.
 - `pnpm validate` (format + lint + typecheck + unit) must pass before a commit; hooks enforce it.
-- Env only through `@/env`. Server-only code under `src/server/`.
+- Env only through `@/env`. Server-only code lives under `src/server/` by convention
+  (no `server-only` import — the worker and integration tests import these modules too).
 - Domain logic (matching, scoring, ratings) stays framework-free and unit-tested.
 - Prefer Server Components / Server Actions; add `"use client"` only when required.
+- Tests: `pnpm test` = fast unit (jsdom, pure). `pnpm test:int` = `*.int.test.ts` against
+  real Postgres + Redis (`pnpm db:up` first). `pnpm test:e2e` = Playwright.
 
 ## Layout
 
