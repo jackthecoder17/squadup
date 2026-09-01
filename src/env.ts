@@ -10,6 +10,9 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     DATABASE_URL: z.url(),
+    // Direct (non-pooled) connection for migrations/seed. Optional — only set
+    // it when DATABASE_URL points at a pooler (e.g. Neon's `-pooler` host).
+    DIRECT_DATABASE_URL: z.url().optional(),
     REDIS_URL: z.url(),
     AUTH_SECRET: z.string().min(1),
     AUTH_DISCORD_ID: z.string().min(1),

@@ -15,8 +15,13 @@ moment they happen.
 ## 1. Postgres — Neon
 
 1. Create a project at <https://neon.tech> (free tier).
-2. Copy the connection string. Use the **direct** one (host _without_ `-pooler`), and
-   make sure it ends with `?sslmode=require`. This is your `DATABASE_URL`.
+2. In the **Connect** panel, copy the connection string.
+   - Simplest: toggle **"Connection pooling" off** and use that **direct** string for
+     `DATABASE_URL`. Make sure it ends with `?sslmode=require` (drop `&channel_binding=require`
+     if `pg` complains).
+   - If you'd rather keep the pooled string for `DATABASE_URL` (the `-pooler` host), also
+     set `DIRECT_DATABASE_URL` to the direct one — migrations and seeding need a direct
+     connection.
    - Free Neon suspends the DB after 5 min idle; the first request after that has a ~1s
      cold start. Fine for a demo.
 
@@ -36,16 +41,17 @@ moment they happen.
    repo defines a `vercel-build` script that runs migrations + seed + `next build`.
 3. Add these **Environment Variables** (Production):
 
-   | Name                  | Value                                              |
-   | --------------------- | -------------------------------------------------- |
-   | `DATABASE_URL`        | Neon direct connection string (`?sslmode=require`) |
-   | `REDIS_URL`           | Upstash TCP URL (`rediss://…`)                     |
-   | `AUTH_SECRET`         | `openssl rand -base64 33`                          |
-   | `AUTH_DISCORD_ID`     | from step 4                                        |
-   | `AUTH_DISCORD_SECRET` | from step 4                                        |
-   | `NEXT_PUBLIC_APP_URL` | `https://<your-project>.vercel.app`                |
-   | `CRON_SECRET`         | `openssl rand -hex 32`                             |
-   | `SIM_BOTS`            | _(optional)_ bot pool size, default `30`           |
+   | Name                  | Value                                                                     |
+   | --------------------- | ------------------------------------------------------------------------- |
+   | `DATABASE_URL`        | Neon connection string (`?sslmode=require`)                               |
+   | `DIRECT_DATABASE_URL` | _(only if `DATABASE_URL` is the pooled `-pooler` URL)_ Neon direct string |
+   | `REDIS_URL`           | Upstash TCP URL (`rediss://…`)                                            |
+   | `AUTH_SECRET`         | `openssl rand -base64 33`                                                 |
+   | `AUTH_DISCORD_ID`     | from step 4                                                               |
+   | `AUTH_DISCORD_SECRET` | from step 4                                                               |
+   | `NEXT_PUBLIC_APP_URL` | `https://<your-project>.vercel.app`                                       |
+   | `CRON_SECRET`         | `openssl rand -hex 32`                                                    |
+   | `SIM_BOTS`            | _(optional)_ bot pool size, default `30`                                  |
 
 4. Deploy. The build runs `prisma migrate deploy` and seeds the game catalog against
    Neon automatically.
