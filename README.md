@@ -60,6 +60,11 @@ and a ready-up flow.
 
 Decisions and their rationale live in [`docs/adr/`](docs/adr).
 
+## Deploying
+
+Free on Vercel + Neon (Postgres) + Upstash (Redis), with a GitHub Actions schedule
+standing in for the worker. Step-by-step in [DEPLOY.md](DEPLOY.md).
+
 ## Getting started
 
 Prerequisites: Node 20.9+, pnpm 10, Docker.
