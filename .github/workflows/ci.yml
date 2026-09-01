@@ -69,6 +69,8 @@ jobs:
 
       - run: pnpm test:cov
 
+      - run: pnpm test:int
+
       - run: pnpm build
 
       - name: Install Playwright browser

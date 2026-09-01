@@ -73,11 +73,10 @@ pnpm db:seed                  # load the game catalog
 pnpm dev                      # http://localhost:3000
 ```
 
-Run the worker and simulator (added in later phases) in separate terminals:
+Run the matchmaking worker in a second terminal (the simulator lands in a later phase):
 
 ```bash
-pnpm worker
-pnpm simulate
+pnpm worker            # forms matches from the queue every few seconds
 ```
 
 ## Scripts
@@ -87,9 +86,10 @@ pnpm simulate
 | `pnpm dev`             | Next dev server (Turbopack)                  |
 | `pnpm build`           | Production build                             |
 | `pnpm validate`        | format check → lint → typecheck → unit tests |
-| `pnpm test`            | Vitest once                                  |
-| `pnpm test:watch`      | Vitest watch                                 |
+| `pnpm test`            | Vitest unit suite (pure, fast)               |
+| `pnpm test:int`        | Integration tests — real Postgres + Redis    |
 | `pnpm test:e2e`        | Playwright                                   |
+| `pnpm worker`          | Run the matchmaking worker                   |
 | `pnpm db:up` / `:down` | Start / stop local Postgres + Redis          |
 | `pnpm db:migrate`      | `prisma migrate dev`                         |
 | `pnpm db:seed`         | Load the game catalog                        |
@@ -97,16 +97,16 @@ pnpm simulate
 
 ## Roadmap
 
-| Phase | Branch                   | Scope                                                     |
-| ----- | ------------------------ | --------------------------------------------------------- |
-| 0 ✅  | `chore/project-setup`    | Tooling, CI, Docker, env validation, Prisma init          |
-| 1 ✅  | `feat/auth`              | Auth.js + Discord OAuth, protected routes                 |
-| 2 ✅  | `feat/player-profiles`   | Onboarding wizard, profile view + editor, game catalog    |
-| 3 ✅  | `feat/matchmaking-queue` | Enter/leave queue, live presence, SSE + Redis pub/sub     |
-| 4     | `feat/match-engine`      | Worker, constraint scoring, group formation, Glicko-2     |
-| 5     | `feat/match-lobby`       | Lobby, text chat, ready-up, post-match rating             |
-| 6     | `feat/player-simulator`  | Bot players + live visualizer dashboard                   |
-| 7     | `feat/design-system`     | Design system, dark theme, responsive, a11y, empty states |
+| Phase | Branch                   | Scope                                                         |
+| ----- | ------------------------ | ------------------------------------------------------------- |
+| 0 ✅  | `chore/project-setup`    | Tooling, CI, Docker, env validation, Prisma init              |
+| 1 ✅  | `feat/auth`              | Auth.js + Discord OAuth, protected routes                     |
+| 2 ✅  | `feat/player-profiles`   | Onboarding wizard, profile view + editor, game catalog        |
+| 3 ✅  | `feat/matchmaking-queue` | Enter/leave queue, live presence, SSE + Redis pub/sub         |
+| 4 ✅  | `feat/match-engine`      | Worker, relaxing constraint scoring, group formation, matches |
+| 5     | `feat/match-lobby`       | Lobby, text chat, ready-up, post-match rating                 |
+| 6     | `feat/player-simulator`  | Bot players + live visualizer dashboard                       |
+| 7     | `feat/design-system`     | Design system, dark theme, responsive, a11y, empty states     |
 
 ## Contributing
 
