@@ -8,6 +8,8 @@ export type GameDefinition = {
   slug: string;
   name: string;
   shortName: string;
+  /** Players per matchmade group. */
+  teamSize: number;
   roles: readonly string[];
   ranks: readonly string[];
 };
@@ -17,6 +19,7 @@ export const GAME_CATALOG = [
     slug: "league-of-legends",
     name: "League of Legends",
     shortName: "LoL",
+    teamSize: 5,
     roles: ["Top", "Jungle", "Mid", "Bot", "Support"],
     ranks: [
       "Iron",
@@ -35,6 +38,7 @@ export const GAME_CATALOG = [
     slug: "valorant",
     name: "VALORANT",
     shortName: "VAL",
+    teamSize: 5,
     roles: ["Duelist", "Initiator", "Controller", "Sentinel", "Flex", "IGL"],
     ranks: [
       "Iron",
@@ -52,6 +56,7 @@ export const GAME_CATALOG = [
     slug: "counter-strike-2",
     name: "Counter-Strike 2",
     shortName: "CS2",
+    teamSize: 5,
     roles: ["Entry", "AWPer", "IGL", "Support", "Lurker"],
     ranks: [
       "Silver",
@@ -67,6 +72,7 @@ export const GAME_CATALOG = [
     slug: "overwatch-2",
     name: "Overwatch 2",
     shortName: "OW2",
+    teamSize: 5,
     roles: ["Tank", "DPS", "Support"],
     ranks: ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master", "Grandmaster", "Champion"],
   },
@@ -74,6 +80,7 @@ export const GAME_CATALOG = [
     slug: "dota-2",
     name: "Dota 2",
     shortName: "Dota",
+    teamSize: 5,
     roles: ["Carry", "Mid", "Offlane", "Soft Support", "Hard Support"],
     ranks: ["Herald", "Guardian", "Crusader", "Archon", "Legend", "Ancient", "Divine", "Immortal"],
   },
@@ -81,6 +88,7 @@ export const GAME_CATALOG = [
     slug: "apex-legends",
     name: "Apex Legends",
     shortName: "Apex",
+    teamSize: 3,
     roles: ["Fragger", "IGL", "Support", "Anchor"],
     ranks: ["Rookie", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master", "Predator"],
   },
@@ -88,6 +96,7 @@ export const GAME_CATALOG = [
     slug: "rocket-league",
     name: "Rocket League",
     shortName: "RL",
+    teamSize: 3,
     roles: ["Striker", "Midfield", "Defender"],
     ranks: [
       "Bronze",
@@ -104,6 +113,7 @@ export const GAME_CATALOG = [
     slug: "marvel-rivals",
     name: "Marvel Rivals",
     shortName: "Rivals",
+    teamSize: 6,
     roles: ["Vanguard", "Duelist", "Strategist"],
     ranks: [
       "Bronze",

@@ -25,6 +25,7 @@ model User {
   accounts Account[]
   sessions Session[]
   profile  PlayerProfile?
+  matches  MatchPlayer[]
 }
 
 model Account {
@@ -89,12 +90,14 @@ model Game {
   slug      String   @unique
   name      String
   shortName String
+  teamSize  Int      @default(5)
   roles     String[]
   ranks     String[] // ordered lowest -> highest
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   gameProfiles GameProfile[]
+  matches      Match[]
 }
 
 model PlayerProfile {
@@ -143,4 +146,45 @@ model AvailabilityWindow {
   createdAt   DateTime @default(now())
 
   @@index([profileId])
+}
+
+// ---------------------------------------------------------------------------
+// Matches (feat/match-engine) — written by the matchmaking worker.
+// ---------------------------------------------------------------------------
+
+enum MatchState {
+  FORMED
+  READY
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Match {
+  id         String     @id @default(cuid())
+  gameId     String
+  game       Game       @relation(fields: [gameId], references: [id])
+  region     Region
+  state      MatchState @default(FORMED)
+  rankSpread Int // max - min rankIndex across the group, for telemetry
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  players MatchPlayer[]
+
+  @@index([gameId, state])
+}
+
+model MatchPlayer {
+  id       String @id @default(cuid())
+  matchId  String
+  match    Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rank     String
+  roles    String[]
+  waitedMs Int
+
+  @@unique([matchId, userId])
+  @@index([userId])
 }

@@ -7,7 +7,8 @@ export type StreamEvent =
       tickets: { gameSlug: string; enqueuedAt: number }[];
     }
   | { kind: "queue"; gameSlug: string; size: number }
-  | { kind: "presence"; online: number };
+  | { kind: "presence"; online: number }
+  | { kind: "match"; gameSlug: string; matchId: string; userIds: string[] };
 
 /** Serialize one Server-Sent Event frame. */
 export function formatSSE(data: unknown, opts: { event?: string; id?: string } = {}): string {

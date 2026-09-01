@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { isProfileComplete } from "@/lib/profile-completeness";
 import { auth } from "@/server/auth";
+import { getActiveMatchForUser } from "@/server/match/service";
 import { getProfile } from "@/server/profile/service";
 import { getSnapshot } from "@/server/queue/service";
 
@@ -16,7 +17,11 @@ export default async function QueuePage() {
   const profile = await getProfile(session.user.id);
   if (!isProfileComplete(profile)) redirect("/onboarding");
 
-  const snapshot = await getSnapshot(session.user.id);
+  const [snapshot, activeMatch] = await Promise.all([
+    getSnapshot(session.user.id),
+    getActiveMatchForUser(session.user.id),
+  ]);
+
   const games = profile!.games.map((entry) => ({
     slug: entry.game.slug,
     name: entry.game.name,
@@ -29,11 +34,13 @@ export default async function QueuePage() {
       <h1 className="mt-1 mb-8 text-2xl font-semibold tracking-tight">Queue</h1>
 
       <QueuePanel
+        userId={session.user.id}
         games={games}
         initial={{
           online: snapshot.online,
           queues: snapshot.queues,
           tickets: Object.fromEntries(snapshot.tickets.map((t) => [t.gameSlug, t.enqueuedAt])),
+          matches: activeMatch ? { [activeMatch.game.slug]: activeMatch.id } : {},
         }}
       />
     </main>

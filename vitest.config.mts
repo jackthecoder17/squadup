@@ -11,7 +11,8 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["e2e/**", "node_modules/**", ".next/**"],
+    // Integration tests (*.int.test.ts) run separately via test:int — real DB + Redis.
+    exclude: ["e2e/**", "node_modules/**", ".next/**", "src/**/*.int.test.ts"],
     coverage: {
       provider: "v8",
       reportsDirectory: "./coverage",

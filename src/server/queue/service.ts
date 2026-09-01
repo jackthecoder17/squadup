@@ -1,5 +1,3 @@
-import "server-only";
-
 import { GAME_CATALOG } from "@/lib/games";
 import {
   PRESENCE_TTL_SECONDS,
@@ -137,8 +135,79 @@ export async function leaveAllQueues(userId: string): Promise<void> {
   }
 }
 
-/** Read a stored ticket back (used later by the match worker). */
+/** Read a stored ticket back (used by the match worker). */
 export async function readTicket(userId: string, slug: string): Promise<QueueTicket | null> {
   const hash = await redis.hgetall(ticketKey(userId, slug));
   return Object.keys(hash).length > 0 ? parseTicket(hash) : null;
+}
+
+// --- Match worker surface --------------------------------------------------
+
+/** Every entry currently in a game's queue, oldest first. */
+export async function readQueueEntries(
+  slug: string,
+): Promise<{ userId: string; enqueuedAt: number }[]> {
+  const flat = await redis.zrangebyscore(queueKey(slug), "-inf", "+inf", "WITHSCORES");
+  const entries: { userId: string; enqueuedAt: number }[] = [];
+  for (let i = 0; i < flat.length; i += 2) {
+    entries.push({ userId: flat[i], enqueuedAt: Number(flat[i + 1]) });
+  }
+  return entries;
+}
+
+/**
+ * Atomically pull a formed group out of the queue. If anyone already left this
+ * tick, the ones we did remove are put back and the claim fails — the worker
+ * retries them next tick.
+ */
+export async function claimForMatch(
+  entries: { userId: string; enqueuedAt: number }[],
+  slug: string,
+): Promise<boolean> {
+  const pipeline = redis.pipeline();
+  for (const entry of entries) pipeline.zrem(queueKey(slug), entry.userId);
+  const results = await pipeline.exec();
+  const removed = (results ?? []).map(([, n]) => n === 1);
+
+  if (removed.every(Boolean)) {
+    const cleanup = redis.pipeline();
+    for (const entry of entries) cleanup.del(ticketKey(entry.userId, slug));
+    await cleanup.exec();
+    return true;
+  }
+
+  const restore: string[] = [];
+  entries.forEach((entry, i) => {
+    if (removed[i]) restore.push(String(entry.enqueuedAt), entry.userId);
+  });
+  if (restore.length > 0) await redis.zadd(queueKey(slug), ...restore);
+  return false;
+}
+
+/** Drop queue members whose ticket hash has expired (client vanished). */
+export async function pruneStaleEntries(slug: string, userIds: string[]): Promise<void> {
+  if (userIds.length === 0) return;
+  await redis.zrem(queueKey(slug), ...userIds);
+  await publishQueueSize(slug);
+}
+
+export async function markInMatch(userIds: string[], now = Date.now()): Promise<void> {
+  const pipeline = redis.pipeline();
+  for (const userId of userIds) {
+    pipeline.set(presenceKey(userId), "in_match", "EX", PRESENCE_TTL_SECONDS);
+    pipeline.zadd(PRESENCE_INDEX, now, userId);
+  }
+  await pipeline.exec();
+}
+
+export function publishMatch(
+  gameSlug: string,
+  matchId: string,
+  userIds: string[],
+): Promise<number> {
+  return publish({ kind: "match", gameSlug, matchId, userIds });
+}
+
+export async function publishQueueSize(slug: string): Promise<void> {
+  await publish({ kind: "queue", gameSlug: slug, size: await queueSize(slug) });
 }
