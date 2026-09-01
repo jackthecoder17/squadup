@@ -18,6 +18,7 @@
     "test:int": "vitest run --config vitest.integration.config.mts",
     "worker": "tsx src/worker/index.ts",
     "worker:dev": "tsx watch src/worker/index.ts",
+    "simulate": "tsx src/simulator/index.ts",
     "validate": "run-s format:check lint typecheck test",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
