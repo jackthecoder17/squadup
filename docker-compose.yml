@@ -1,0 +1,37 @@
+# Local development services. Start with: docker compose up -d
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: squadup-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: squadup
+      POSTGRES_PASSWORD: squadup
+      POSTGRES_DB: squadup
+    ports:
+      - "5432:5432"
+    volumes:
+      - squadup_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U squadup"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: squadup-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - squadup_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  squadup_pg:
+  squadup_redis:
