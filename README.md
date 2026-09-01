@@ -104,7 +104,7 @@ pnpm worker            # forms matches from the queue every few seconds
 | 2 ✅  | `feat/player-profiles`   | Onboarding wizard, profile view + editor, game catalog        |
 | 3 ✅  | `feat/matchmaking-queue` | Enter/leave queue, live presence, SSE + Redis pub/sub         |
 | 4 ✅  | `feat/match-engine`      | Worker, relaxing constraint scoring, group formation, matches |
-| 5     | `feat/match-lobby`       | Lobby, text chat, ready-up, post-match rating                 |
+| 5 ✅  | `feat/match-lobby`       | Lobby: live chat, ready-up state machine, launch, ratings     |
 | 6     | `feat/player-simulator`  | Bot players + live visualizer dashboard                       |
 | 7     | `feat/design-system`     | Design system, dark theme, responsive, a11y, empty states     |
 
