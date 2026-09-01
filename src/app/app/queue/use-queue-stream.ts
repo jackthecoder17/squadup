@@ -13,11 +13,13 @@ export type QueueStreamState = {
   queues: Record<string, number>;
   /** gameSlug -> enqueuedAt (ms) for games this client is queued for */
   tickets: Record<string, number>;
+  /** gameSlug -> matchId once this client has been matched */
+  matches: Record<string, string>;
 };
 
 export type QueueStreamInit = Omit<QueueStreamState, "status">;
 
-export function useQueueStream(initial: QueueStreamInit) {
+export function useQueueStream(userId: string, initial: QueueStreamInit) {
   const [state, setState] = useState<QueueStreamState>({ status: "connecting", ...initial });
 
   /** Optimistically reflect this client's own join/leave before the snapshot catches up. */
@@ -46,6 +48,7 @@ export function useQueueStream(initial: QueueStreamInit) {
         switch (parsed.kind) {
           case "snapshot":
             return {
+              ...prev,
               status: "live",
               online: parsed.online,
               queues: parsed.queues,
@@ -58,6 +61,16 @@ export function useQueueStream(initial: QueueStreamInit) {
             };
           case "presence":
             return { ...prev, online: parsed.online };
+          case "match": {
+            if (!parsed.userIds.includes(userId)) return prev;
+            const tickets = { ...prev.tickets };
+            delete tickets[parsed.gameSlug];
+            return {
+              ...prev,
+              tickets,
+              matches: { ...prev.matches, [parsed.gameSlug]: parsed.matchId },
+            };
+          }
           default:
             return prev;
         }
@@ -65,7 +78,7 @@ export function useQueueStream(initial: QueueStreamInit) {
     };
 
     return () => source.close();
-  }, []);
+  }, [userId]);
 
   return { ...state, setTicket };
 }

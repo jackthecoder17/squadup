@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 
 import { cn } from "@/lib/cn";
@@ -16,30 +17,31 @@ const STATUS_LABEL = {
   reconnecting: "Reconnecting…",
 } as const;
 
-export function QueuePanel({ games, initial }: { games: GameOption[]; initial: QueueStreamInit }) {
-  const { status, online, queues, tickets, setTicket } = useQueueStream(initial);
+export function QueuePanel({
+  userId,
+  games,
+  initial,
+}: {
+  userId: string;
+  games: GameOption[];
+  initial: QueueStreamInit;
+}) {
+  const { status, online, queues, tickets, matches, setTicket } = useQueueStream(userId, initial);
   const [pendingSlug, setPendingSlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
-  function join(slug: string) {
+  function run(
+    slug: string,
+    action: () => Promise<{ ok: boolean; error?: string }>,
+    after: () => void,
+  ) {
     setError(null);
     setPendingSlug(slug);
     startTransition(async () => {
-      const result = await joinQueueAction(slug);
-      if (result.ok) setTicket(slug, Date.now());
-      else setError(result.error);
-      setPendingSlug(null);
-    });
-  }
-
-  function leave(slug: string) {
-    setError(null);
-    setPendingSlug(slug);
-    startTransition(async () => {
-      const result = await leaveQueueAction(slug);
-      if (result.ok) setTicket(slug, null);
-      else setError(result.error);
+      const result = await action();
+      if (result.ok) after();
+      else setError(result.error ?? "Something went wrong.");
       setPendingSlug(null);
     });
   }
@@ -70,6 +72,7 @@ export function QueuePanel({ games, initial }: { games: GameOption[]; initial: Q
           const size = queues[game.slug] ?? 0;
           const queuedAt = tickets[game.slug];
           const isQueued = queuedAt !== undefined;
+          const matchId = matches[game.slug];
           const busy = pendingSlug === game.slug;
 
           return (
@@ -77,21 +80,40 @@ export function QueuePanel({ games, initial }: { games: GameOption[]; initial: Q
               <div className="min-w-0">
                 <p className="truncate font-medium">{game.name}</p>
                 <p className="text-sm text-zinc-500">
-                  {size} in queue
-                  {isQueued ? (
+                  {matchId ? (
+                    "Match found"
+                  ) : (
                     <>
-                      {" · "}
-                      <WaitTimer since={queuedAt} />
+                      {size} in queue
+                      {isQueued ? (
+                        <>
+                          {" · "}
+                          <WaitTimer since={queuedAt} />
+                        </>
+                      ) : null}
                     </>
-                  ) : null}
+                  )}
                 </p>
               </div>
 
-              {isQueued ? (
+              {matchId ? (
+                <Link
+                  href={`/app/match/${matchId}`}
+                  className="shrink-0 rounded-full bg-green-600 px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                >
+                  Open lobby
+                </Link>
+              ) : isQueued ? (
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => leave(game.slug)}
+                  onClick={() =>
+                    run(
+                      game.slug,
+                      () => leaveQueueAction(game.slug),
+                      () => setTicket(game.slug, null),
+                    )
+                  }
                   className="shrink-0 rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 disabled:opacity-40 dark:border-zinc-700 dark:hover:bg-zinc-900"
                 >
                   {busy ? "…" : "Leave"}
@@ -100,7 +122,13 @@ export function QueuePanel({ games, initial }: { games: GameOption[]; initial: Q
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => join(game.slug)}
+                  onClick={() =>
+                    run(
+                      game.slug,
+                      () => joinQueueAction(game.slug),
+                      () => setTicket(game.slug, Date.now()),
+                    )
+                  }
                   className="bg-foreground text-background shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
                 >
                   {busy ? "…" : "Find a squad"}
@@ -118,8 +146,8 @@ export function QueuePanel({ games, initial }: { games: GameOption[]; initial: Q
       ) : null}
 
       <p className="text-sm text-zinc-500">
-        Matching itself lands in the next phase — for now you can watch the queue fill in real time
-        across tabs and devices.
+        The match engine runs as a separate worker (`pnpm worker`). When enough compatible players
+        are queued it forms a lobby and everyone here sees it live.
       </p>
     </div>
   );
