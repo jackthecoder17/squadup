@@ -22,10 +22,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
-  profile  PlayerProfile?
-  matches  MatchPlayer[]
+  accounts         Account[]
+  sessions         Session[]
+  profile          PlayerProfile?
+  matches          MatchPlayer[]
+  messages         MatchMessage[]
+  ratingsGiven     PlayerRating[] @relation("RatingsGiven")
+  ratingsReceived  PlayerRating[] @relation("RatingsReceived")
 }
 
 model Account {
@@ -170,21 +173,52 @@ model Match {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
-  players MatchPlayer[]
+  players  MatchPlayer[]
+  messages MatchMessage[]
+  ratings  PlayerRating[]
 
   @@index([gameId, state])
 }
 
 model MatchPlayer {
-  id       String @id @default(cuid())
+  id       String   @id @default(cuid())
   matchId  String
-  match    Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  match    Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
   userId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   rank     String
   roles    String[]
   waitedMs Int
+  ready    Boolean  @default(false)
 
   @@unique([matchId, userId])
   @@index([userId])
+}
+
+model MatchMessage {
+  id        String   @id @default(cuid())
+  matchId   String
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([matchId, createdAt])
+}
+
+/// Thumbs up/down a teammate leaves after a match. Feeds a future reputation score.
+model PlayerRating {
+  id         String   @id @default(cuid())
+  matchId    String
+  match      Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  fromUserId String
+  fromUser   User     @relation("RatingsGiven", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User     @relation("RatingsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+  value      Int // -1 or +1
+  createdAt  DateTime @default(now())
+
+  @@unique([matchId, fromUserId, toUserId])
+  @@index([toUserId])
 }
