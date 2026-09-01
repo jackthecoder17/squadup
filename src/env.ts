@@ -14,6 +14,11 @@ export const env = createEnv({
     AUTH_SECRET: z.string().min(1),
     AUTH_DISCORD_ID: z.string().min(1),
     AUTH_DISCORD_SECRET: z.string().min(1),
+    // Shared secret for the /api/cron/tick endpoint that stands in for the
+    // long-lived worker + simulator in a serverless deployment.
+    CRON_SECRET: z.string().min(1).optional(),
+    // Bot pool size the cron tick maintains (production default is smaller).
+    SIM_BOTS: z.coerce.number().int().positive().default(30),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.url(),
