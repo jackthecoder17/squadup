@@ -21,17 +21,12 @@ export default async function ProfilePage() {
           <p className="font-mono text-sm text-zinc-500">squadup</p>
           <h1 className="text-2xl font-semibold tracking-tight">Your profile</h1>
         </div>
-        <div className="flex items-center gap-4 text-sm font-medium">
-          <Link href="/app" className="hover:text-foreground text-zinc-500">
-            Back
-          </Link>
-          <Link
-            href="/app/profile/edit"
-            className="bg-foreground text-background rounded-full px-4 py-1.5"
-          >
-            Edit
-          </Link>
-        </div>
+        <Link
+          href="/app/profile/edit"
+          className="bg-foreground text-background rounded-full px-4 py-1.5 text-sm font-medium"
+        >
+          Edit
+        </Link>
       </div>
 
       <ProfileSummary profile={profile} />
