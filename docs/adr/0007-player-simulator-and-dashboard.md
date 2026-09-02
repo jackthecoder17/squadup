@@ -16,9 +16,10 @@ nothing to match, and nothing to show. It needs a population and a window into i
   worker, lobby — exercise for real, and the dashboard shows real data.
 - **The simulator is a third process** (`src/simulator/`, `pnpm simulate`, `tsx`),
   alongside `dev` and `worker`. Each tick: idle bots join a random one of their games,
-  queued bots leave with a small probability, and any match made up entirely of bots is
-  marked `COMPLETED` so its bots churn back into the queue. `ensureBotPool` is idempotent
-  and cheap on restart.
+  queued bots leave with a small probability, any match made up entirely of bots is
+  marked `COMPLETED` so its bots churn back into the queue, and any bot sharing a lobby
+  with a real player readies up — so a solo user can drive the lobby → launch → rate flow
+  without needing other people. `ensureBotPool` is idempotent and cheap on restart.
 - **The bot population is deliberately clustered**, not uniform: regions and games are
   weighted toward the popular ones, ranks are drawn from a bell around the middle of each
   ladder, and each bot plays only one or two games. A realistic player base is dense; a
