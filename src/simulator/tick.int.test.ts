@@ -5,15 +5,24 @@ import * as queue from "@/server/queue/service";
 import { redis } from "@/server/redis";
 import { runMatchTick } from "@/worker/tick";
 
+import { buildTicket } from "@/lib/queue";
+import * as lobby from "@/server/match/service";
+
 import { ensureBotPool } from "./pool";
 import { simulateTick } from "./tick";
 
 describe("simulator (integration)", () => {
   let botIds: string[] = [];
+  let humanId: string | null = null;
 
   afterEach(async () => {
     for (const id of botIds) await queue.leaveAllQueues(id).catch(() => {});
-    await db.match.deleteMany({ where: { players: { some: { userId: { in: botIds } } } } });
+    if (humanId) await queue.leaveAllQueues(humanId).catch(() => {});
+    await db.match.deleteMany({
+      where: { players: { some: { userId: { in: [...botIds, humanId ?? ""] } } } },
+    });
+    if (humanId) await db.user.delete({ where: { id: humanId } }).catch(() => {});
+    humanId = null;
     const keys = await redis.keys("mm:*");
     if (keys.length > 0) await redis.del(...keys);
   });
@@ -56,5 +65,62 @@ describe("simulator (integration)", () => {
     expect(matches.length).toBeGreaterThan(0);
     // resolveBotMatches (run inside simulateTick) completes all-bot lobbies
     expect(matches.some((m) => m.state === "COMPLETED")).toBe(true);
+  });
+
+  it("readies the bots when a real player is in the lobby", async () => {
+    botIds = await ensureBotPool(30, 11);
+
+    const human = await db.user.create({
+      data: { name: "Solo tester", email: `human-${Date.now()}@example.test` },
+    });
+    humanId = human.id;
+    const profile = await db.playerProfile.create({
+      data: {
+        userId: human.id,
+        displayName: "Solo",
+        region: "EU_WEST",
+        languages: ["English"],
+        timezone: "Europe/Berlin",
+        games: {
+          create: {
+            rank: "Gold",
+            roles: ["Mid"],
+            game: { connect: { slug: "league-of-legends" } },
+          },
+        },
+      },
+      include: { games: { include: { game: true } } },
+    });
+
+    const base = Date.now();
+    await queue.joinQueue(
+      buildTicket(
+        human.id,
+        { region: profile.region, languages: profile.languages, games: profile.games },
+        "league-of-legends",
+        base - 10 * 60_000, // long wait so the human matches quickly
+      ),
+    );
+
+    for (let tick = 0; tick < 20; tick += 1) {
+      await simulateTick(botIds, { joinChance: 1, leaveChance: 0 });
+      await runMatchTick(base + tick * 60_000);
+    }
+
+    const humanMatch = await db.match.findFirst({
+      where: { players: { some: { userId: human.id } } },
+      include: { players: true },
+    });
+    expect(humanMatch).not.toBeNull();
+
+    // Every bot in the human's lobby is ready; only the human is holding it up.
+    const botsInMatch = humanMatch!.players.filter((p) => p.userId !== human.id);
+    expect(botsInMatch.length).toBeGreaterThan(0);
+    expect(botsInMatch.every((p) => p.ready)).toBe(true);
+
+    // Once the human readies too, the lobby advances with no other people.
+    await lobby.setReady(humanMatch!.id, human.id, true);
+    const advanced = await db.match.findUniqueOrThrow({ where: { id: humanMatch!.id } });
+    expect(advanced.state).toBe("READY");
   });
 });

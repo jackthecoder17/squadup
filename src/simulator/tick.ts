@@ -1,6 +1,7 @@
 import { buildTicket } from "@/lib/queue";
 import { chance, mulberry32 } from "@/lib/sim-bots";
 import { db } from "@/server/db";
+import * as lobby from "@/server/match/service";
 import * as queue from "@/server/queue/service";
 
 export type SimConfig = { joinChance: number; leaveChance: number };
@@ -8,7 +9,7 @@ export const DEFAULT_SIM_CONFIG: SimConfig = { joinChance: 0.45, leaveChance: 0.
 
 const rng = mulberry32(Date.now() & 0xffff || 1);
 
-export type SimTickResult = { joined: number; left: number; resolved: number };
+export type SimTickResult = { joined: number; left: number; resolved: number; readied: number };
 
 /** One pass: some idle bots queue, some queued bots bail, all-bot matches auto-resolve. */
 export async function simulateTick(
@@ -62,8 +63,35 @@ export async function simulateTick(
     }
   }
 
+  const readied = await readyBotsInHumanLobbies(botIds);
   const resolved = await resolveBotMatches(botIds);
-  return { joined, left, resolved };
+  return { joined, left, resolved, readied };
+}
+
+/**
+ * When a real player is matched with bots, the bots ready up on their own so a
+ * solo user can drive the lobby → launch → rate flow without other people.
+ */
+async function readyBotsInHumanLobbies(botIds: string[]): Promise<number> {
+  const botSet = new Set(botIds);
+  const matches = await db.match.findMany({
+    where: { state: { in: ["FORMED", "READY"] } },
+    include: { players: { select: { userId: true, ready: true } } },
+  });
+
+  let readied = 0;
+  for (const match of matches) {
+    const hasHuman = match.players.some((p) => !botSet.has(p.userId));
+    if (!hasHuman) continue; // pure-bot lobbies are handled by resolveBotMatches
+
+    for (const player of match.players) {
+      if (botSet.has(player.userId) && !player.ready) {
+        await lobby.setReady(match.id, player.userId, true);
+        readied += 1;
+      }
+    }
+  }
+  return readied;
 }
 
 /** Complete matches made up entirely of bots, so they churn back into the queue. */

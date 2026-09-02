@@ -25,12 +25,13 @@ export async function POST(request: Request) {
   const botIds = await ensureBotPool(env.SIM_BOTS);
 
   const base = Date.now();
-  const totals = { joined: 0, left: 0, resolved: 0, matchesFormed: 0 };
+  const totals = { joined: 0, left: 0, resolved: 0, readied: 0, matchesFormed: 0 };
   for (let i = 0; i < BURST; i += 1) {
     const sim = await simulateTick(botIds);
     totals.joined += sim.joined;
     totals.left += sim.left;
     totals.resolved += sim.resolved;
+    totals.readied += sim.readied;
     const passes = await runMatchTick(base + i * 60_000);
     totals.matchesFormed += passes.reduce((n, p) => n + p.matchesFormed, 0);
   }
